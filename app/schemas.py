@@ -1,8 +1,9 @@
 from pydantic import BaseModel
+from typing import Optional
 
 class WorkspaceBase(BaseModel):
     name: str
-    description: str = None
+    description: Optional[str] = None
 
 class WorkspaceCreate(WorkspaceBase):
     pass
@@ -11,4 +12,4 @@ class Workspace(WorkspaceBase):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True # This is important for SQLAlchemy
