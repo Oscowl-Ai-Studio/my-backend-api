@@ -2,10 +2,11 @@ name: Build and Publish Docker Image
 
 on:
   push:
-    branches: [ "main", "feat/workspace-lifecycle-crud" ]
+    branches: [ "feat/workspace-lifecycle-crud" ]
 
 env:
   REGISTRY: ghcr.io
+  # We use this to store the lowercase name
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
@@ -26,9 +27,15 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # --- THIS STEP FIXES THE UPPERCASE ERROR ---
+      - name: Downcase Image Name
+        run: |
+          echo "IMAGE_ID=$(echo ${{ env.IMAGE_NAME }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:
           context: .
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          # We use 'env.IMAGE_ID' (the lowercase one) instead of 'IMAGE_NAME'
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_ID }}:latest
